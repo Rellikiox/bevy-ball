@@ -1,5 +1,6 @@
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::diagnostic::LogDiagnosticsPlugin;
+use bevy::render::view::window;
 use bevy::window::PresentMode;
 use bevy::{prelude::*, window::PrimaryWindow};
 use rand::prelude::*;
@@ -9,6 +10,8 @@ pub const PLAYER_SIZE: f32 = 64.0;
 pub const ENEMY_COUNT: usize = 1;
 pub const ENEMY_SPEED: f32 = 200.0;
 pub const ENEMY_SIZE: f32 = 64.0;
+pub const STAR_COUNT: usize = 10;
+pub const STAR_SIZE: f32 = 30.0;
 
 fn main() {
     let window_plugin = WindowPlugin {
@@ -24,17 +27,20 @@ fn main() {
         .add_plugins(DefaultPlugins.set(window_plugin))
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(LogDiagnosticsPlugin::default())
-        .add_systems(Startup, (spawn_player, spawn_camera, spawn_enemies))
+        .add_systems(
+            Startup,
+            (spawn_player, spawn_camera, spawn_enemies, spawn_stars),
+        )
         .add_systems(
             Update,
             (
                 player_movement,
-                confine_player_movement,
+                confine_window_bound,
                 enemy_movement,
                 update_enemy_direction,
-                confine_enemy_movement,
                 enemy_bounce,
                 enemy_hit_player,
+                collect_stars,
             ),
         )
         .run();
@@ -46,6 +52,14 @@ pub struct Player {}
 #[derive(Component)]
 pub struct Enemy {
     pub direction: Vec2,
+}
+
+#[derive(Component)]
+pub struct Star {}
+
+#[derive(Component)]
+pub struct WindowBound {
+    radius: f32,
 }
 
 pub fn spawn_player(
@@ -62,6 +76,9 @@ pub fn spawn_player(
             ..default()
         },
         Player {},
+        WindowBound {
+            radius: PLAYER_SIZE / 2.0,
+        },
     ));
 }
 
@@ -103,24 +120,6 @@ pub fn player_movement(
     }
 }
 
-pub fn confine_player_movement(
-    mut player_query: Query<&mut Transform, With<Player>>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-) {
-    if let Ok(mut transform) = player_query.get_single_mut() {
-        let window = window_query.get_single().unwrap();
-
-        let half_player_size = PLAYER_SIZE / 2.0;
-        let x_min = 0.0 + half_player_size;
-        let y_min = 0.0 + half_player_size;
-        let x_max = window.width() - half_player_size;
-        let y_max = window.height() - half_player_size;
-
-        transform.translation.x = clamp(transform.translation.x, x_min, x_max);
-        transform.translation.y = clamp(transform.translation.y, y_min, y_max);
-    }
-}
-
 fn clamp<T: std::cmp::PartialOrd>(input: T, min: T, max: T) -> T {
     if input < min {
         return min;
@@ -151,6 +150,31 @@ pub fn spawn_enemies(
             Enemy {
                 direction: Vec2::new(random::<f32>(), random::<f32>()).normalize(),
             },
+            WindowBound {
+                radius: ENEMY_SIZE / 2.0,
+            },
+        ));
+    }
+}
+
+pub fn spawn_stars(
+    mut commands: Commands,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,
+) {
+    let window = window_query.get_single().unwrap();
+
+    for _ in 0..STAR_COUNT {
+        let x = random::<f32>() * window.width();
+        let y = random::<f32>() * window.height();
+
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(x, y, 0.0),
+                texture: asset_server.load("sprites/star.png"),
+                ..default()
+            },
+            Star {},
         ));
     }
 }
@@ -201,19 +225,18 @@ pub fn update_enemy_direction(
     }
 }
 
-pub fn confine_enemy_movement(
-    mut enemy_query: Query<&mut Transform, With<Enemy>>,
+pub fn confine_window_bound(
+    mut query: Query<(&mut Transform, &WindowBound)>,
     window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     let window = window_query.get_single().unwrap();
 
-    let half_enemy_size = ENEMY_SIZE / 2.0;
-    let x_min = 0.0 + half_enemy_size;
-    let y_min = 0.0 + half_enemy_size;
-    let x_max = window.width() - half_enemy_size;
-    let y_max = window.height() - half_enemy_size;
+    for (mut transform, window_bound) in query.iter_mut() {
+        let x_min = 0.0 + window_bound.radius;
+        let y_min = 0.0 + window_bound.radius;
+        let x_max = window.width() - window_bound.radius;
+        let y_max = window.height() - window_bound.radius;
 
-    for mut transform in enemy_query.iter_mut() {
         transform.translation.x = clamp(transform.translation.x, x_min, x_max);
         transform.translation.y = clamp(transform.translation.y, y_min, y_max);
     }
@@ -254,6 +277,31 @@ pub fn enemy_hit_player(
                     ..default()
                 });
                 commands.entity(player_entity).despawn();
+            }
+        }
+    }
+}
+
+pub fn collect_stars(
+    player_query: Query<&Transform, With<Player>>,
+    star_query: Query<(Entity, &Transform), With<Star>>,
+    asset_server: Res<AssetServer>,
+    mut commands: Commands,
+) {
+    if let Ok(player_transform) = player_query.get_single() {
+        for (star_entity, star_transform) in star_query.iter() {
+            let distance = player_transform
+                .translation
+                .distance(star_transform.translation);
+            let hit_distance = PLAYER_SIZE / 2.0 + ENEMY_SIZE / 2.0;
+
+            if distance < hit_distance {
+                println!("Collected star!");
+                commands.spawn(AudioBundle {
+                    source: asset_server.load("audio/laserLarge_000.ogg"),
+                    ..default()
+                });
+                commands.entity(star_entity).despawn();
             }
         }
     }
