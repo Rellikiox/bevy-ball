@@ -23,6 +23,7 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<SimulationState>()
+            .add_systems(OnEnter(AppState::Game), pause_simulation)
             .add_plugins((
                 CommonPlugin,
                 EnemyPlugin,
@@ -34,7 +35,8 @@ impl Plugin for GamePlugin {
             .add_systems(
                 Update,
                 toggle_simulation_state.run_if(in_state(AppState::Game)),
-            );
+            )
+            .add_systems(OnExit(AppState::Game), resume_simulation);
     }
 }
 
