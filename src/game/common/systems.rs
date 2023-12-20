@@ -12,10 +12,7 @@ pub fn tick_spawn_timers(
     enemy_timer.timer.tick(time.delta());
 }
 
-pub fn despawn_entities<T: bevy::prelude::Component>(
-    mut commands: Commands,
-    query: Query<Entity, With<T>>,
-) {
+pub fn despawn_entities<T: Component>(mut commands: Commands, query: Query<Entity, With<T>>) {
     for entity in query.iter() {
         commands.entity(entity).despawn();
     }
