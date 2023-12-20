@@ -1,11 +1,13 @@
 mod game;
 mod main_menu;
+mod systems;
 
-use bevy::app::AppExit;
+use bevy::prelude::*;
 use bevy::window::PresentMode;
-use bevy::{prelude::*, window::PrimaryWindow};
 
 use game::GamePlugin;
+use main_menu::MainMenuPlugin;
+use systems::*;
 
 fn main() {
     let window_plugin = WindowPlugin {
@@ -19,26 +21,16 @@ fn main() {
     };
     App::new()
         .add_plugins(DefaultPlugins.set(window_plugin))
-        .add_plugins(GamePlugin)
+        .add_plugins((GamePlugin, MainMenuPlugin))
         .add_systems(Startup, spawn_camera)
-        .add_systems(Update, exit_game)
+        .add_systems(Update, (exit_game, handle_game_over))
         .run();
 }
 
-pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
-    let window = window_query.get_single().unwrap();
-
-    commands.spawn(Camera2dBundle {
-        transform: Transform::from_xyz(window.width() / 2.0, window.height() / 2.0, 1.0),
-        ..default()
-    });
-}
-
-pub fn exit_game(
-    keyboard_input: Res<Input<KeyCode>>,
-    mut app_exit_event_writer: EventWriter<AppExit>,
-) {
-    if keyboard_input.just_pressed(KeyCode::Escape) {
-        app_exit_event_writer.send(AppExit);
-    }
+#[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
+pub enum AppState {
+    #[default]
+    MainMenu,
+    Game,
+    GameOver,
 }

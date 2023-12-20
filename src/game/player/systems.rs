@@ -1,7 +1,6 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
 use super::components::*;
-use super::resources::*;
 use super::{PLAYER_SIZE, PLAYER_SPEED};
 use crate::game::playing_area::components::*;
 
@@ -51,11 +50,5 @@ pub fn player_movement(
         }
 
         transform.translation += direction * PLAYER_SPEED * time.delta_seconds();
-    }
-}
-
-pub fn handle_game_over(mut game_over_er: EventReader<GameOver>) {
-    for event in game_over_er.read() {
-        println!("Your final score is: {}", event.score);
     }
 }

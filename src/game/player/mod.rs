@@ -14,7 +14,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, (spawn_player,))
-            .add_systems(Update, (player_movement, handle_game_over))
+            .add_systems(Update, (player_movement,))
             .add_event::<GameOver>();
     }
 }

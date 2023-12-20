@@ -1,6 +1,6 @@
 mod common;
 mod enemy;
-mod player;
+pub mod player;
 mod playing_area;
 mod score;
 mod stars;
