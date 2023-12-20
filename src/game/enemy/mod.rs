@@ -2,7 +2,11 @@ mod components;
 pub mod resources;
 pub mod systems;
 
+use super::SimulationState;
+use crate::game::common::systems::despawn_entities;
+use crate::AppState;
 use bevy::prelude::*;
+use components::*;
 use resources::*;
 use systems::*;
 
@@ -15,7 +19,7 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, startup_spawn_enemies)
+        app.add_systems(OnEnter(AppState::Game), startup_spawn_enemies)
             .add_systems(
                 Update,
                 (
@@ -24,8 +28,11 @@ impl Plugin for EnemyPlugin {
                     enemy_bounce,
                     enemy_hit_player,
                     spawn_enemies_over_time,
-                ),
+                )
+                    .run_if(in_state(AppState::Game))
+                    .run_if(in_state(SimulationState::Running)),
             )
+            .add_systems(OnExit(AppState::Game), despawn_entities::<Enemy>)
             .init_resource::<EnemySpawnTimer>();
     }
 }

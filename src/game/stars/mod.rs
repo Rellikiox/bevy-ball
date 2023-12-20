@@ -2,7 +2,11 @@ mod components;
 pub mod resources;
 mod systems;
 
+use crate::game::common::systems::despawn_entities;
+use crate::game::SimulationState;
+use crate::AppState;
 use bevy::prelude::*;
+use components::*;
 use resources::*;
 use systems::*;
 
@@ -14,8 +18,14 @@ pub struct StarsPlugin;
 
 impl Plugin for StarsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, (startup_spawn_stars,))
-            .add_systems(Update, (collect_stars, spawn_stars_over_time))
+        app.add_systems(OnEnter(AppState::Game), (startup_spawn_stars,))
+            .add_systems(
+                Update,
+                (collect_stars, spawn_stars_over_time)
+                    .run_if(in_state(AppState::Game))
+                    .run_if(in_state(SimulationState::Running)),
+            )
+            .add_systems(OnExit(AppState::Game), despawn_entities::<Star>)
             .init_resource::<StarSpawnTimer>();
     }
 }

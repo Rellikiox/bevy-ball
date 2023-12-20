@@ -1,4 +1,4 @@
-mod systems;
+pub mod systems;
 pub mod utils;
 
 use bevy::prelude::*;

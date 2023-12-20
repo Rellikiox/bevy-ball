@@ -26,3 +26,11 @@ pub fn high_scores_updated(high_scores: Res<HighScores>) {
         }
     }
 }
+
+pub fn insert_score(mut commands: Commands) {
+    commands.insert_resource(Score::default());
+}
+
+pub fn remove_score(mut commands: Commands) {
+    commands.remove_resource::<Score>();
+}
