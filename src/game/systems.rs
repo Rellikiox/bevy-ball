@@ -17,10 +17,8 @@ pub fn toggle_simulation_state(
 
 pub fn pause_simulation(mut next_state: ResMut<NextState<SimulationState>>) {
     next_state.set(SimulationState::Paused);
-    println!("Simulation paused");
 }
 
 pub fn resume_simulation(mut next_state: ResMut<NextState<SimulationState>>) {
     next_state.set(SimulationState::Running);
-    println!("Simulation running");
 }

@@ -27,8 +27,7 @@ pub fn handle_game_over(
     mut game_over_er: EventReader<GameOver>,
     mut next_app_state: ResMut<NextState<AppState>>,
 ) {
-    for event in game_over_er.read() {
-        println!("Your final score is: {}", event.score);
+    for _event in game_over_er.read() {
         next_app_state.set(AppState::GameOver);
     }
 }
@@ -43,17 +42,14 @@ pub fn app_state_transitions(
         match app_state.get() {
             AppState::MainMenu => {
                 next_app_state.set(AppState::Game);
-                println!("Enter Game");
             }
             AppState::Game => {
                 next_app_state.set(AppState::MainMenu);
                 next_simulation_state.set(SimulationState::Running);
-                println!("Enter MainMenu");
             }
             AppState::GameOver => {
                 next_app_state.set(AppState::Game);
                 next_simulation_state.set(SimulationState::Paused);
-                println!("Enter MainMenu");
             }
         }
     }
