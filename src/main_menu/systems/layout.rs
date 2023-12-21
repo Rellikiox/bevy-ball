@@ -17,7 +17,6 @@ pub fn build_main_menu(commands: &mut Commands, asset_server: &Res<AssetServer>)
     let main_menu_entity = commands
         .spawn((
             NodeBundle {
-                background_color: Color::RED.into(),
                 style: Style {
                     width: Val::Percent(100.0),
                     height: Val::Percent(100.0),
@@ -32,12 +31,53 @@ pub fn build_main_menu(commands: &mut Commands, asset_server: &Res<AssetServer>)
             MainMenu {},
         ))
         .with_children(|parent| {
+            build_title(parent, asset_server);
             build_button(parent, PlayButton {}, "Play", asset_server);
             build_button(parent, PlayButton {}, "Quit", asset_server);
         })
         .id();
 
     return main_menu_entity;
+}
+
+pub fn build_title(parent: &mut ChildBuilder, asset_server: &Res<AssetServer>) -> Entity {
+    return parent
+        .spawn(NodeBundle {
+            style: Style {
+                flex_direction: FlexDirection::Row,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+                width: Val::Px(300.0),
+                height: Val::Px(120.0),
+                ..default()
+            },
+            ..default()
+        })
+        .with_children(|parent| {
+            build_image(parent, asset_server, "sprites/ball_blue_large.png");
+            build_text(parent, "Ballz", asset_server);
+            build_image(parent, asset_server, "sprites/ball_red_large.png");
+        })
+        .id();
+}
+
+pub fn build_image(
+    parent: &mut ChildBuilder,
+    asset_server: &Res<AssetServer>,
+    image_path: &str,
+) -> Entity {
+    return parent
+        .spawn(ImageBundle {
+            style: Style {
+                width: Val::Px(64.0),
+                height: Val::Px(64.0),
+                margin: UiRect::new(Val::Px(8.0), Val::Px(8.0), Val::Px(8.0), Val::Px(8.0)),
+                ..default()
+            },
+            image: asset_server.load(image_path).into(),
+            ..default()
+        })
+        .id();
 }
 
 pub fn build_button<T: Component>(
@@ -62,21 +102,31 @@ pub fn build_button<T: Component>(
             marker,
         ))
         .with_children(|parent| {
-            parent.spawn(TextBundle {
-                text: Text {
-                    sections: vec![TextSection::new(
-                        text,
-                        TextStyle {
-                            font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-                            font_size: 32.0,
-                            color: Color::WHITE,
-                        },
-                    )],
-                    alignment: TextAlignment::Center,
-                    ..default()
-                },
+            build_text(parent, text, asset_server);
+        })
+        .id();
+}
+
+pub fn build_text(
+    parent: &mut ChildBuilder,
+    text: &str,
+    asset_server: &Res<AssetServer>,
+) -> Entity {
+    return parent
+        .spawn(TextBundle {
+            text: Text {
+                sections: vec![TextSection::new(
+                    text,
+                    TextStyle {
+                        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+                        font_size: 32.0,
+                        color: Color::WHITE,
+                    },
+                )],
+                alignment: TextAlignment::Center,
                 ..default()
-            });
+            },
+            ..default()
         })
         .id();
 }
