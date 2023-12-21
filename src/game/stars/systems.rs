@@ -9,14 +9,30 @@ use crate::game::score::resources::*;
 use crate::game::stars::components::*;
 use crate::game::stars::resources::*;
 
+pub fn startup_spawn_stars(
+    commands: Commands,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,
+    star_spawn_ew: EventWriter<StarSpawn>,
+) {
+    spawn_stars(
+        commands,
+        window_query,
+        asset_server,
+        star_spawn_ew,
+        STAR_COUNT,
+    );
+}
+
 pub fn spawn_stars_over_time(
     commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,
     star_timer: Res<StarSpawnTimer>,
+    star_spawn_ew: EventWriter<StarSpawn>,
 ) {
     if star_timer.timer.finished() {
-        spawn_stars(commands, window_query, asset_server, 1);
+        spawn_stars(commands, window_query, asset_server, star_spawn_ew, 1);
     }
 }
 
@@ -24,6 +40,7 @@ fn spawn_stars(
     mut commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,
+    mut star_spawn_ew: EventWriter<StarSpawn>,
     count: usize,
 ) {
     let window = window_query.get_single().unwrap();
@@ -40,21 +57,15 @@ fn spawn_stars(
             },
             Star {},
         ));
+        star_spawn_ew.send(StarSpawn {});
     }
-}
-
-pub fn startup_spawn_stars(
-    commands: Commands,
-    window_query: Query<&Window, With<PrimaryWindow>>,
-    asset_server: Res<AssetServer>,
-) {
-    spawn_stars(commands, window_query, asset_server, STAR_COUNT);
 }
 
 pub fn collect_stars(
     player_query: Query<&Transform, With<Player>>,
     star_query: Query<(Entity, &Transform), With<Star>>,
     asset_server: Res<AssetServer>,
+    mut star_pickup_ew: EventWriter<StarPickup>,
     mut score: ResMut<Score>,
     mut commands: Commands,
 ) {
@@ -71,7 +82,8 @@ pub fn collect_stars(
                     ..default()
                 });
                 commands.entity(star_entity).despawn();
-                score.value += 1
+                score.value += 1;
+                star_pickup_ew.send(StarPickup {});
             }
         }
     }

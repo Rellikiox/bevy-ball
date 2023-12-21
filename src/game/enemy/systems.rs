@@ -15,8 +15,10 @@ pub fn startup_spawn_enemies(
     commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,
+    mut spawn_count: ResMut<SpawnedEnemies>,
 ) {
     spawn_enemies(commands, window_query, asset_server, ENEMY_COUNT);
+    spawn_count.value += ENEMY_COUNT;
 }
 
 pub fn enemy_movement(mut enemy_query: Query<(&mut Transform, &Enemy)>, time: Res<Time>) {
@@ -140,8 +142,18 @@ pub fn spawn_enemies_over_time(
     window_query: Query<&Window, With<PrimaryWindow>>,
     asset_server: Res<AssetServer>,
     enemy_timer: Res<EnemySpawnTimer>,
+    mut spawn_count: ResMut<SpawnedEnemies>,
 ) {
     if enemy_timer.timer.finished() {
         spawn_enemies(commands, window_query, asset_server, 1);
+        spawn_count.value += 1;
     }
+}
+
+pub fn insert_spawned_enemies_resources(mut commands: Commands) {
+    commands.insert_resource(SpawnedEnemies::default());
+}
+
+pub fn remove_spawned_enemies_resources(mut commands: Commands) {
+    commands.insert_resource(SpawnedEnemies::default());
 }

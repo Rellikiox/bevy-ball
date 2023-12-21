@@ -1,8 +1,8 @@
-mod common;
-mod enemy;
+pub mod common;
+pub mod enemy;
 pub mod player;
 mod playing_area;
-mod score;
+pub mod score;
 mod stars;
 mod systems;
 

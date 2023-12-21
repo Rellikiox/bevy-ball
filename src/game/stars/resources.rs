@@ -14,3 +14,9 @@ impl Default for StarSpawnTimer {
         };
     }
 }
+
+#[derive(Event)]
+pub struct StarSpawn {}
+
+#[derive(Event)]
+pub struct StarPickup {}

@@ -26,6 +26,8 @@ impl Plugin for StarsPlugin {
                     .run_if(in_state(SimulationState::Running)),
             )
             .add_systems(OnExit(AppState::Game), despawn_entities::<Star>)
+            .add_event::<StarSpawn>()
+            .add_event::<StarPickup>()
             .init_resource::<StarSpawnTimer>();
     }
 }

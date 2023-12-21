@@ -14,3 +14,14 @@ impl Default for EnemySpawnTimer {
         };
     }
 }
+
+#[derive(Resource)]
+pub struct SpawnedEnemies {
+    pub value: usize,
+}
+
+impl Default for SpawnedEnemies {
+    fn default() -> SpawnedEnemies {
+        return SpawnedEnemies { value: 0 };
+    }
+}
