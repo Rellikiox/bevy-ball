@@ -47,7 +47,7 @@ pub fn app_state_transitions(
             }
             AppState::Game => {
                 next_app_state.set(AppState::MainMenu);
-                next_simulation_state.set(SimulationState::Paused);
+                next_simulation_state.set(SimulationState::Running);
                 println!("Enter MainMenu");
             }
             AppState::GameOver => {

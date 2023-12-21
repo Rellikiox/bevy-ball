@@ -23,7 +23,6 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<SimulationState>()
-            .add_systems(OnEnter(AppState::Game), pause_simulation)
             .add_plugins((
                 CommonPlugin,
                 EnemyPlugin,
@@ -42,7 +41,7 @@ impl Plugin for GamePlugin {
 
 #[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 pub enum SimulationState {
-    Running,
     #[default]
+    Running,
     Paused,
 }
