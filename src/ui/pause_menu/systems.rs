@@ -1,6 +1,6 @@
 use super::{HOVER_BUTTON_BG_COLOR, NORMAL_BUTTON_BG_COLOR, PRESSED_BUTTON_BG_COLOR};
 use crate::game::SimulationState;
-use crate::pause_menu::components::*;
+use crate::ui::pause_menu::components::*;
 use crate::AppState;
 use bevy::app::AppExit;
 use bevy::prelude::*;

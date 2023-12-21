@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use super::NORMAL_BUTTON_BG_COLOR;
-use crate::pause_menu::components::*;
+use crate::ui::pause_menu::components::*;
 
 pub fn spawn_pause_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands

@@ -1,7 +1,5 @@
-use crate::{
-    main_menu::{components::*, styles::*},
-    AppState,
-};
+use crate::ui::main_menu::{components::*, styles::*};
+use crate::AppState;
 use bevy::app::AppExit;
 use bevy::prelude::*;
 

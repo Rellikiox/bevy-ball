@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::hud::components::*;
+use crate::ui::hud::components::*;
 
 pub fn spawn_hud(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
