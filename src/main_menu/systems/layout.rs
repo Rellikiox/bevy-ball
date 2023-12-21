@@ -4,7 +4,7 @@ use crate::main_menu::components::*;
 use crate::main_menu::styles::*;
 
 pub fn spawn_main_menu(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let main_menu_entity = build_main_menu(&mut commands, &asset_server);
+    build_main_menu(&mut commands, &asset_server);
 }
 
 pub fn despawn_main_menu(mut commands: Commands, query: Query<Entity, With<MainMenu>>) {
@@ -33,7 +33,7 @@ pub fn build_main_menu(commands: &mut Commands, asset_server: &Res<AssetServer>)
         .with_children(|parent| {
             build_title(parent, asset_server);
             build_button(parent, PlayButton {}, "Play", asset_server);
-            build_button(parent, PlayButton {}, "Quit", asset_server);
+            build_button(parent, QuitButton {}, "Quit", asset_server);
         })
         .id();
 
@@ -74,7 +74,7 @@ pub fn build_image(
                 margin: UiRect::new(Val::Px(8.0), Val::Px(8.0), Val::Px(8.0), Val::Px(8.0)),
                 ..default()
             },
-            image: asset_server.load(image_path).into(),
+            image: asset_server.load(image_path.to_string()).into(),
             ..default()
         })
         .id();
